@@ -1,0 +1,60 @@
+#!/bin/sh
+
+#   toaac 1.2
+#
+#   Convierte todos los archivos MP3 en el directorio actual a formato
+#   AAC 64 Kbps mono, manteniendo las tags.
+#   Al finalizar queda en el directorio actual una carpeta de igual nombre
+#   con los archivos .m4a y la imagen Cover.jpg (o Front.jpg) en tamaño
+#   500x500.
+#
+#   Requiere:
+#   - convert
+#   - faac
+#   - mediainfo
+#   - mpg321
+#   - sox
+#   - infomedia *
+#
+#
+#   Creado por Juan Bertinetti (juanbertinetti@gmail.com)
+#
+#   Cambios:
+#   -1.2 (30 de abril de 2012):
+#       Cambiada la extensión de salida de los archivos de .aac a .m4a (de
+#       esta forma los archivos son reconocidos de forma correcta en todos
+#       los reproductores).
+#   -1.1:
+#       También se fija en el nombre de imagen Front.jpg aparte de Cover.jpg.
+#   -1.0 (26 de octubre de 2011):
+#       Versión inicial.
+#
+#   Este programa es Software Libre.
+#
+
+mkdir aac
+for i in *.mp3; do
+    mediainfo "$i" > mediainfo.txt;
+    mpg321 -w wav.wav "$i";
+    sox wav.wav -t wav wav2.wav channels 1;
+    artista=`infomedia mediainfo.txt "Performer"`;
+    album=`infomedia mediainfo.txt "Album"`;
+    year=`infomedia mediainfo.txt "Recorded date"`;
+    tit=`infomedia mediainfo.txt "Track name"`;
+    num=`infomedia mediainfo.txt "Track name/Position"`;
+    genero=`infomedia mediainfo.txt "Genre"`;
+    comentario=`infomedia mediainfo.txt "Comment"`;
+    faac -b 64 -w --artist "$artista" --title "${tit}" --genre "${genero}" --album "${album}" --track "${num}" --year "${year}" --comment "${comentario}" -o "aac/${i}.m4a" wav2.wav;
+    rm wav.wav;
+    rm wav2.wav;
+done
+if (test -f Cover.jpg) then
+    convert Cover.jpg -resize 500x500 aac/Cover.jpg;
+elif (test -f Front.jpg) then
+    convert Front.jpg -resize 500x500 aac/Cover.jpg;
+fi
+rm mediainfo.txt
+cd aac
+rename 's/.mp3//' *.m4a
+cd ..
+mv aac "${PWD##*/}"

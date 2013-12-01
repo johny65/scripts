@@ -1,0 +1,18 @@
+#!/bin/sh
+
+#Convierte todos los archivos MP3 del directorio actual a formato
+#CBR 128 Kbps con calidad alta
+
+mkdir 128
+for i in *.mp3; do
+	#obtener tags:
+	mediainfo "$i" > mediainfo.txt;
+	artista=`infomedia mediainfo.txt "Performer"`;
+	album=`infomedia mediainfo.txt "Album"`;
+	year=`infomedia mediainfo.txt "Recorded date"`;
+	tit=`infomedia mediainfo.txt "Track name"`;
+	num=`infomedia mediainfo.txt "Track name/Position"`;
+	#convertir:
+	lame -m j -V 4 -q 0 --lowpass 17 -b 128 --cbr --id3v2-only --ta "$artista" --tl "$album" --ty "$year" --tt "$tit" --tn "$num" "$i" "128/$i"
+done
+rm mediainfo.txt

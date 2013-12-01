@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# DIR debe tener la ruta base de la librería. Adentro de esta carpeta debe haber
+# 2 carpetas, "lib" e "include", y dentro de "include" debe estar todo en una
+# carpeta llamada "wx-2.9".
+DIR="COMPLETAR ACÁ"
+
+#ejecutar "wx-config" con mi ruta y transpaso los parámetros:
+sh "$DIR/lib/wx/config/gtk2-unicode-static-2.9" --prefix="$DIR" $@

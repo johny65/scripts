@@ -1,0 +1,5 @@
+//Extractor de links v0.5//Creado por Johny 6.5 Corp. 2002-2011
+#include <iostream>#include <string>#include <fstream>
+using namespace std;
+int main(){	ifstream entrada("entrada.txt");	if (!entrada.is_open()){		cout<<"Extractor de links v0.5\n";		cout<<"Creado por Johny 6.5 Corp.\n\n";		cout<<"Uso: Renombrar el archivo de entrada a entrada.txt y luego abrir el programa.\n";	}
+	else {		ofstream salida("salida.txt");		string temp, link;		unsigned int i;		while (getline(entrada, temp)){			i = temp.find("http");			while (i != string::npos){				temp = temp.substr(i, temp.length());				i = temp.find("\"");				if (i != string::npos){					link = temp.substr(0, i);					salida<<link<<'\n';					temp = temp.substr(i, temp.length());					i = temp.find("http");				}				else {					link = temp.substr(0, temp.length());					salida<<link<<'\n';				}			}		}		entrada.close();		salida.close();	}	return 0;}
