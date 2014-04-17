@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#   toaac 1.2
+#   toaac 1.3
 #
 #   Convierte todos los archivos MP3 en el directorio actual a formato
 #   AAC 64 Kbps mono, manteniendo las tags.
@@ -9,17 +9,16 @@
 #   500x500.
 #
 #   Requiere:
-#   - convert
-#   - faac
-#   - mediainfo
-#   - mpg321
-#   - sox
-#   - infomedia *
+#   - avconv
 #
 #
 #   Creado por Juan Bertinetti (juanbertinetti@gmail.com)
 #
 #   Cambios:
+#   -1.3 (2 de diciembre de 2013):
+#       Cambiado faac por avconv ...
+
+
 #   -1.2 (30 de abril de 2012):
 #       Cambiada la extensión de salida de los archivos de .aac a .m4a (de
 #       esta forma los archivos son reconocidos de forma correcta en todos
@@ -32,29 +31,36 @@
 #   Este programa es Software Libre.
 #
 
+#while getopts "m" optname
+#do
+    #case "$optname" in
+        #"m")
+            #MONO=True
+            #DB_PORT="$OPTARG";
+        #"?")
+            #echo "Unknown option $OPTARG";
+            #;;
+        #":")
+            #echo "No argument value for option $OPTARG";
+            #;;
+        #*)
+            #echo "Unknown error while processing options";
+            #;;
+    #esac
+#done
+
 mkdir aac
-for i in *.mp3; do
-    mediainfo "$i" > mediainfo.txt;
-    mpg321 -w wav.wav "$i";
-    sox wav.wav -t wav wav2.wav channels 1;
-    artista=`infomedia mediainfo.txt "Performer"`;
-    album=`infomedia mediainfo.txt "Album"`;
-    year=`infomedia mediainfo.txt "Recorded date"`;
-    tit=`infomedia mediainfo.txt "Track name"`;
-    num=`infomedia mediainfo.txt "Track name/Position"`;
-    genero=`infomedia mediainfo.txt "Genre"`;
-    comentario=`infomedia mediainfo.txt "Comment"`;
-    faac -b 64 -w --artist "$artista" --title "${tit}" --genre "${genero}" --album "${album}" --track "${num}" --year "${year}" --comment "${comentario}" -o "aac/${i}.m4a" wav2.wav;
-    rm wav.wav;
-    rm wav2.wav;
+for i in *.ogg; do
+    #avconv -i "${i}" -b 64k -ac 1 -map_metadata 0:g "aac/${i}.m4a"
+    avconv -i "${i}" -b 64k "aac/${i}.m4a"
 done
 if (test -f Cover.jpg) then
     convert Cover.jpg -resize 500x500 aac/Cover.jpg;
 elif (test -f Front.jpg) then
     convert Front.jpg -resize 500x500 aac/Cover.jpg;
 fi
-rm mediainfo.txt
+#rm mediainfo.txt
 cd aac
-rename 's/.mp3//' *.m4a
+rename 's/.ogg//' *.m4a
 cd ..
 mv aac "${PWD##*/}"
